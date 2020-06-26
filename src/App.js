@@ -31,7 +31,7 @@ componentDidMount() {
         this.setState({
           currentUser: {
             id: snapShot.id,
-            ...snapShot.data()
+            ...snapShot.data() 
           }
         })
       })
