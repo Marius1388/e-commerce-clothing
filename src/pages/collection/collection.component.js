@@ -4,7 +4,7 @@ import { selectCollection } from '../../redux/shop/shop.selectors';
 
 import './collection.styles.scss';
 
-import CollectionItem from '../collection-item/collection-item.component';
+import CollectionItem from '../../components/collection-item/collection-item.component';
 
 const CollectionPage = ({ collection }) => {
 	const { title, items } = collection;
