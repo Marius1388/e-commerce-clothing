@@ -3,75 +3,89 @@ import 'firebase/firestore';
 import 'firebase/auth';
 
 const config = {
-	apiKey: 'AIzaSyAADG2XYBYNLobnYAm6sgy_q96vD2hBhzs',
-	authDomain: 'e-commerce-clothing-db-d8db5.firebaseapp.com',
-	databaseURL: 'https://e-commerce-clothing-db-d8db5.firebaseio.com',
-	projectId: 'e-commerce-clothing-db-d8db5',
-	storageBucket: 'e-commerce-clothing-db-d8db5.appspot.com',
-	messagingSenderId: '970398452418',
-	appId: '1:970398452418:web:56fa08fc49561a0d02c95b',
-	measurementId: 'G-DFT6PD56B3',
+  apiKey: 'AIzaSyCdHT-AYHXjF7wOrfAchX4PIm3cSj5tn14',
+  authDomain: 'crwn-db.firebaseapp.com',
+  databaseURL: 'https://crwn-db.firebaseio.com',
+  projectId: 'crwn-db',
+  storageBucket: 'crwn-db.appspot.com',
+  messagingSenderId: '850995411664',
+  appId: '1:850995411664:web:7ddc01d597846f65'
 };
+
 firebase.initializeApp(config);
 
 export const createUserProfileDocument = async (userAuth, additionalData) => {
-	if (!userAuth) return;
+  if (!userAuth) return;
 
-	const userRef = firestore.doc(`users/${userAuth.uid}`);
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
 
-	const snapShot = await userRef.get();
+  const snapShot = await userRef.get();
 
-	if (!snapShot.exists) {
-		const { displayName, email } = userAuth;
-		const createdAt = new Date();
+  if (!snapShot.exists) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...additionalData
+      });
+    } catch (error) {
+      console.log('error creating user', error.message);
+    }
+  }
 
-		try {
-			await userRef.set({
-				displayName,
-				email,
-				createdAt,
-				...additionalData,
-			});
-		} catch (error) {
-			console.log('error creating user', error.message);
-		}
-	}
-	return userRef;
+  return userRef;
 };
 
-export const addColletionAndDocuments = async (collectionKey, objectsToAdd) => {
-	const collectionRef = firestore.collection(collectionKey);
+export const addCollectionAndDocuments = async (
+  collectionKey,
+  objectsToAdd
+) => {
+  const collectionRef = firestore.collection(collectionKey);
 
-	const batch = firestore.batch();
-	objectsToAdd.forEach((obj) => {
-		const newDocRef = collectionRef.doc();
-		batch.set(newDocRef, obj);
-	});
-	return await batch.commit();
+  const batch = firestore.batch();
+  objectsToAdd.forEach(obj => {
+    const newDocRef = collectionRef.doc();
+    batch.set(newDocRef, obj);
+  });
+
+  return await batch.commit();
 };
 
-export const convertCollectionsSnapshotToMap = (collections) => {
-	const transformedColletion = collections.docs.map((doc) => {
-		const { title, items } = doc.data();
+export const convertCollectionsSnapshotToMap = collections => {
+  const transformedCollection = collections.docs.map(doc => {
+    const { title, items } = doc.data();
 
-		return {
-			routeName: encodeURI(title.toLowerCase()),
-			id: doc.id,
-			title,
-			items,
-		};
-	});
-	return transformedColletion.reduce((accumulator, collection) => {
-		accumulator[collection.title.toLowerCase()] = collection;
-		return accumulator;
-	}, {});
+    return {
+      routeName: encodeURI(title.toLowerCase()),
+      id: doc.id,
+      title,
+      items
+    };
+  });
+
+  return transformedCollection.reduce((accumulator, collection) => {
+    accumulator[collection.title.toLowerCase()] = collection;
+    return accumulator;
+  }, {});
+};
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged(userAuth => {
+      unsubscribe();
+      resolve(userAuth);
+    }, reject);
+  });
 };
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
-const provider = new firebase.auth.GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+export const signInWithGoogle = () => auth.signInWithPopup(googleProvider);
 
 export default firebase;
