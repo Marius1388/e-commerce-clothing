@@ -6,7 +6,7 @@ import StripeCheckout from 'react-stripe-checkout';
 // import axios from 'axios';
 import { clearCart } from '../../redux/cart/cart.actions';
 
-const StripeCheckoutButton = ({ price }) => {
+const StripeCheckoutButton = ({ price, clearCart }) => {
 	// const priceForStripe = parseInt(price.slice(1)) * 100;
 	const priceForStripe = price * 100;
 	const publishableKey = 'pk_test_INy53guAQjoOPmMFPUIVZt7A004EpodQ5z';
